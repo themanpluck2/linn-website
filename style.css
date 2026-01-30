@@ -1,0 +1,126 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    /* The main orange/pink gradient background */
+    background: linear-gradient(135deg, #ff3366 0%, #ff6633 100%);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 90%;
+    max-width: 400px;
+}
+
+/* The white card styling */
+.qa-card {
+    background-color: white;
+    border-radius: 20px;
+    padding: 20px;
+    width: 100%;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-sizing: border-box; /* Ensures padding doesn't affect width */
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.header-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.username {
+    font-weight: 700;
+    font-size: 14px;
+    color: #333;
+}
+
+.prompt-text {
+    font-size: 14px;
+    color: #333;
+}
+
+/* The pink input area styling */
+.input-container {
+    position: relative;
+    background: linear-gradient(to right, #ff99aa, #ffbbaa); /* Pinkish gradient */
+    border-radius: 15px;
+    padding: 5px;
+}
+
+textarea {
+    width: 100%;
+    height: 120px;
+    border: none;
+    background: transparent;
+    resize: none; /* Prevent resizing */
+    padding: 15px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #222;
+    box-sizing: border-box;
+    outline: none;
+}
+
+textarea::placeholder {
+    color: #444;
+}
+
+.dice-icon {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    font-size: 20px;
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+.footer-text {
+    color: white;
+    font-size: 12px;
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+}
+
+/* The black Send button styling */
+#sendButton {
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 15px 0;
+    width: 100%;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#sendButton:hover {
+    background-color: #333;
+}
+
+#sendButton:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+}
