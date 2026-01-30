@@ -4,100 +4,105 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anonymous Q&A</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Including CSS here so it's all in one file for you */
+        body {
+            margin: 0; padding: 0; font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #ff3366 0%, #ff6633 100%);
+            height: 100vh; display: flex; justify-content: center; align-items: center;
+        }
+        .main-container { width: 90%; max-width: 400px; display: flex; flex-direction: column; align-items: center; }
+        .qa-card {
+            background-color: white; border-radius: 20px; padding: 20px; width: 100%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); box-sizing: border-box;
+        }
+        .card-header { display: flex; align-items: center; margin-bottom: 15px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; background: #eee; }
+        .header-text { display: flex; flex-direction: column; }
+        .username-label { font-weight: 700; font-size: 14px; color: #333; }
+        .prompt-text { font-size: 14px; color: #333; }
+        
+        /* THE INPUT BOXES FOR USERNAME AND IMAGE */
+        .input-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 8px; }
+        .input-group input {
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px;
+            font-size: 14px; box-sizing: border-box; background: #fdfdfd;
+        }
+
+        .message-area {
+            position: relative; background: linear-gradient(to right, #ff99aa, #ffbbaa);
+            border-radius: 15px; padding: 5px;
+        }
+        textarea {
+            width: 100%; height: 100px; border: none; background: transparent;
+            resize: none; padding: 15px; font-size: 18px; font-weight: 700;
+            color: #222; box-sizing: border-box; outline: none;
+        }
+        .footer-text { color: white; font-size: 12px; margin: 15px 0; font-weight: 500; }
+        #sendBtn {
+            background-color: black; color: white; border: none; border-radius: 30px;
+            padding: 15px 0; width: 100%; font-size: 18px; font-weight: 700; cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 
     <div class="main-container">
         <div class="qa-card">
             <div class="card-header">
-                <img src="https://via.placeholder.com/40/FF5733/FFFFFF?text=L" alt="Avatar" class="avatar">
+                <img src="https://via.placeholder.com/40/FF5733/FFFFFF?text=L" class="avatar">
                 <div class="header-text">
-                    <span class="username">@Linnn</span>
+                    <span class="username-label">@Linnn</span>
                     <span class="prompt-text">send me anonymous messages!</span>
                 </div>
             </div>
 
-            <div class="extra-inputs">
-                <input type="text" id="usernameInput" placeholder="Enter your Discord username...">
-                <input type="text" id="avatarInput" placeholder="Paste Profile Pic URL (optional)...">
+            <div class="input-group">
+                <input type="text" id="discordName" placeholder="Discord Username">
+                <input type="text" id="photoUrl" placeholder="Profile Photo Link (URL)">
             </div>
 
-            <div class="input-container">
-                <textarea id="messageInput" placeholder="Type your question here..."></textarea>
-                <div class="dice-icon" onclick="randomPrompt()">🎲</div>
+            <div class="message-area">
+                <textarea id="msg" placeholder="Write something..."></textarea>
             </div>
         </div>
 
-        <div class="footer-text">
-            🔒 anonymous q&a
-        </div>
+        <div class="footer-text">🔒 anonymous q&a</div>
 
-        <button id="sendButton">Send!</button>
+        <button id="sendBtn">Send!</button>
     </div>
 
     <script>
-        const WEBHOOK_URL = "https://discord.com/api/webhooks/1466751890623565917/v-W-d0-Fqr2cWuYC6KmwgEy_yddydcWXkU_n0q05Pv_m1rtUBAP3KR2H55L3DO3MN7jh"; 
+        const WEBHOOK = "https://discord.com/api/webhooks/1466751890623565917/v-W-d0-Fqr2cWuYC6KmwgEy_yddydcWXkU_n0q05Pv_m1rtUBAP3KR2H55L3DO3MN7jh";
 
-        const sendButton = document.getElementById('sendButton');
-        const messageInput = document.getElementById('messageInput');
-        const usernameInput = document.getElementById('usernameInput');
-        const avatarInput = document.getElementById('avatarInput');
+        document.getElementById('sendBtn').onclick = function() {
+            const name = document.getElementById('discordName').value || "Anonymous";
+            const pic = document.getElementById('photoUrl').value || null;
+            const message = document.getElementById('msg').value;
 
-        // Fun feature: Random prompts when clicking the dice
-        function randomPrompt() {
-            const prompts = ["What's your favorite hobby?", "Tell me a secret!", "If you were a cat, what would you do?", "Do you like coding?"];
-            messageInput.value = prompts[Math.floor(Math.random() * prompts.length)];
-        }
+            if(!message) return alert("Type a message!");
 
-        sendButton.addEventListener('click', sendMessage);
+            this.innerText = "Sending...";
+            this.disabled = true;
 
-        async function sendMessage() {
-            const message = messageInput.value.trim();
-            const chosenUsername = usernameInput.value.trim() || "Anonymous User";
-            let chosenAvatar = avatarInput.value.trim() || null;
-
-            if (message === "") {
-                alert("Please type a message first!");
-                return;
-            }
-
-            sendButton.disabled = true;
-            sendButton.innerText = "Sending...";
-
-            const payload = {
-                username: chosenUsername,
-                avatar_url: chosenAvatar,
-                embeds: [{
-                    title: "📬 New Anonymous Message",
-                    description: message,
-                    color: 16724889,
-                    timestamp: new Date().toISOString()
-                }]
-            };
-
-            try {
-                const response = await fetch(WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (response.ok) {
-                    alert("Sent to Discord!");
-                    messageInput.value = "";
-                } else {
-                    const err = await response.text();
-                    alert("Discord Error: " + err);
-                }
-            } catch (error) {
-                alert("Network Error: Could not connect to Discord.");
-            } finally {
-                sendButton.disabled = false;
-                sendButton.innerText = "Send!";
-            }
-        }
+            fetch(WEBHOOK, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    username: name,
+                    avatar_url: pic,
+                    content: `**New Message:** ${message}`
+                })
+            }).then(() => {
+                alert("Sent!");
+                document.getElementById('msg').value = "";
+            }).catch(() => {
+                alert("Error!");
+            }).finally(() => {
+                this.innerText = "Send!";
+                this.disabled = false;
+            });
+        };
     </script>
 </body>
 </html>
