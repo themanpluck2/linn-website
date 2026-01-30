@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anonymous Q&A</title>
+    <title>Ask Me Anything</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -12,11 +12,16 @@
     <div class="main-container">
         <div class="qa-card">
             <div class="card-header">
-                <img src="https://via.placeholder.com/40/FF5733/FFFFFF?text=L" alt="Avatar" class="avatar">
+                <img src="https://via.placeholder.com/40/FF5733/FFFFFF?text=A" alt="Avatar" class="avatar">
                 <div class="header-text">
-                    <span class="username">@Linnn</span>
+                    <span class="username">@AskMe</span>
                     <span class="prompt-text">send me anonymous messages!</span>
                 </div>
+            </div>
+
+            <div class="identity-inputs">
+                <input type="text" id="usernameInput" placeholder="Your Username (optional)" maxlength="32">
+                <input type="text" id="avatarInput" placeholder="Profile Picture URL (optional)">
             </div>
 
             <div class="input-container">
@@ -32,40 +37,44 @@
         <button id="sendButton">Send!</button>
     </div>
 
-
     <script>
-        // =================IMPORTANT=================
-        // PASTE YOUR DISCORD WEBHOOK URL BELOW BETWEEN THE QUOTES
-        const WEBHOOK_URL = "PASTE_YOUR_WEBHOOK_URL_HERE"; 
-        // ===========================================
-
+        // YOUR WEBHOOK URL
+        const WEBHOOK_URL = "https://discord.com/api/webhooks/1466751890623565917/v-W-d0-Fqr2cWuYC6KmwgEy_yddydcWXkU_n0q05Pv_m1rtUBAP3KR2H55L3DO3MN7jh"; 
 
         const sendButton = document.getElementById('sendButton');
         const messageInput = document.getElementById('messageInput');
+        const usernameInput = document.getElementById('usernameInput');
+        const avatarInput = document.getElementById('avatarInput');
 
         sendButton.addEventListener('click', sendMessage);
 
         function sendMessage() {
             const message = messageInput.value.trim();
+            // Default to "Anonymous" if no name provided
+            const username = usernameInput.value.trim() || "Anonymous"; 
+            // Use the provided URL, or undefined (Discord will use default webhook avatar)
+            const avatarUrl = avatarInput.value.trim() || undefined;
 
             if (message === "") {
                 alert("Please enter a message first.");
                 return;
             }
 
-            // Disable button while sending
             sendButton.disabled = true;
             sendButton.innerText = "Sending...";
 
-            // Prepare payload for Discord
+            // Construct the Discord Payload
             const payload = {
-                // You can customize the bot name and avatar here
-                username: "Anonymous Q&A Bot", 
-                // The actual message content formatted nicely
+                username: username, 
+                avatar_url: avatarUrl,
                 embeds: [{
-                    title: "New Anonymous Message!",
+                    title: "New Message Received!",
                     description: message,
-                    color: 16724889 // Use a pinkish hexadecimal color code (e.g., 0xFF3399 converted to decimal)
+                    color: 16724889, // Pinkish color
+                    footer: {
+                        text: "Sent via Q&A Website"
+                    },
+                    timestamp: new Date().toISOString()
                 }]
             };
 
@@ -78,11 +87,11 @@
             })
             .then(response => {
                 if (response.ok) {
-                    alert("Message sent successfully!");
-                    messageInput.value = ""; // Clear input
+                    alert("Message sent!");
+                    messageInput.value = "";
                 } else {
-                    alert("Error sending message. Check console.");
-                    console.error('Error:', response);
+                    alert("Error sending. If you used a Profile Pic URL, make sure it is valid.");
+                    console.error(response);
                 }
             })
             .catch((error) => {
@@ -90,7 +99,6 @@
                 alert("Error sending message.");
             })
             .finally(() => {
-                // Re-enable button
                 sendButton.disabled = false;
                 sendButton.innerText = "Send!";
             });
