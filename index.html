@@ -3,207 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ask Questions - Anonymous Q&A</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(to bottom right, #ff69b4, #ff4500);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: #333;
-        }
-
-        .container {
-            text-align: center;
-            max-width: 400px;
-            padding: 20px;
-        }
-
-        .bubble {
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 20px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-
-        .bubble::before {
-            content: "";
-            position: absolute;
-            top: -10px;
-            left: 20px;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-bottom: 10px solid rgba(255, 255, 255, 0.9);
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .user-info img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-
-        .user-info span {
-            font-weight: bold;
-        }
-
-        textarea {
-            width: 100%;
-            height: 100px;
-            border: none;
-            border-radius: 10px;
-            padding: 10px;
-            font-size: 16px;
-            resize: none;
-            background-color: rgba(255, 255, 255, 0.8);
-        }
-
-        .footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-        }
-
-        .anonymous-label {
-            font-size: 14px;
-            color: #fff;
-            background-color: rgba(0, 0, 0, 0.2);
-            padding: 5px 10px;
-            border-radius: 20px;
-        }
-
-        .send-button {
-            background-color: #000;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .discord-input {
-            margin-top: 20px;
-        }
-
-        .discord-input label {
-            display: block;
-            color: #fff;
-            margin-bottom: 5px;
-        }
-
-        .discord-input input {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 10px;
-            background-color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 10px;
-        }
-
-        .explanation {
-            color: #fff;
-            font-size: 12px;
-            margin-top: 10px;
-        }
-
-        #response-message {
-            color: #fff;
-            margin-top: 20px;
-        }
-    </style>
+    <title>Anonymous Q&A</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <div class="bubble">
-            <div class="user-info">
-                <!-- Replace with your own avatar URL or use a placeholder -->
-                <img src="https://via.placeholder.com/40" alt="User Avatar">
-                <span>@linn</span> send anonymous message to linn
+
+    <div class="main-container">
+        <div class="qa-card">
+            <div class="card-header">
+                <img src="https://via.placeholder.com/40/FF5733/FFFFFF?text=L" alt="Avatar" class="avatar">
+                <div class="header-text">
+                    <span class="username">@Linnn</span>
+                    <span class="prompt-text">send me anonymous messages!</span>
+                </div>
             </div>
-            <textarea id="message" placeholder="send a anonymous message"></textarea>
+
+            <div class="input-container">
+                <textarea id="messageInput" placeholder="use this example"></textarea>
+                <div class="dice-icon">🎲</div>
+            </div>
         </div>
-        <div class="discord-input">
-            <label for="discord-username">Discord Username (required for server management)</label>
-            <input type="text" id="discord-username" placeholder="Your Discord username" required>
-            <label for="profile-pic-url">Discord Profile Picture URL (optional for server management)</label>
-            <input type="text" id="profile-pic-url" placeholder="https://cdn.discordapp.com/avatars/...">
+
+        <div class="footer-text">
+            🔒 anonymous q&a
         </div>
-        <p class="explanation">The Discord username and profile picture are used for server management so that if the server goes down, you can cool the server by kicking people if needed. Profile picture is optional.</p>
-        <div class="footer">
-            <span class="anonymous-label">🔒 anonymous q&a</span>
-            <button class="send-button" onclick="sendMessage()">Send!</button>
-        </div>
-        <div id="response-message"></div>
+
+        <button id="sendButton">Send!</button>
     </div>
 
+
     <script>
+        // =================IMPORTANT=================
+        // PASTE YOUR DISCORD WEBHOOK URL BELOW BETWEEN THE QUOTES
+        const WEBHOOK_URL = "PASTE_YOUR_WEBHOOK_URL_HERE"; 
+        // ===========================================
+
+
+        const sendButton = document.getElementById('sendButton');
+        const messageInput = document.getElementById('messageInput');
+
+        sendButton.addEventListener('click', sendMessage);
+
         function sendMessage() {
-            const message = document.getElementById('message').value;
-            const discordUsername = document.getElementById('discord-username').value;
-            const profilePicUrl = document.getElementById('profile-pic-url').value || '';
-            const responseMessage = document.getElementById('response-message');
+            const message = messageInput.value.trim();
 
-            if (!message) {
-                responseMessage.textContent = 'Please enter a message.';
+            if (message === "") {
+                alert("Please enter a message first.");
                 return;
             }
 
-            if (!discordUsername) {
-                responseMessage.textContent = 'Please enter your Discord username.';
-                return;
-            }
+            // Disable button while sending
+            sendButton.disabled = true;
+            sendButton.innerText = "Sending...";
 
-            // Replace with your actual Discord webhook URL
-            const webhookUrl = 'https://discord.com/api/webhooks/1466751890623565917/v-W-d0-Fqr2cWuYC6KmwgEy_yddydcWXkU_n0q05Pv_m1rtUBAP3KR2H55L3DO3MN7jh';
-
-            const embed = {
-                author: {
-                    name: discordUsername
-                },
-                description: message
-            };
-
-            if (profilePicUrl) {
-                embed.author.icon_url = profilePicUrl;
-            }
-
+            // Prepare payload for Discord
             const payload = {
-                embeds: [embed]
+                // You can customize the bot name and avatar here
+                username: "Anonymous Q&A Bot", 
+                // The actual message content formatted nicely
+                embeds: [{
+                    title: "New Anonymous Message!",
+                    description: message,
+                    color: 16724889 // Use a pinkish hexadecimal color code (e.g., 0xFF3399 converted to decimal)
+                }]
             };
 
-            fetch(webhookUrl, {
+            fetch(WEBHOOK_URL, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
             })
             .then(response => {
                 if (response.ok) {
-                    responseMessage.textContent = 'Message sent successfully!';
-                    document.getElementById('message').value = '';
-                    document.getElementById('discord-username').value = '';
-                    document.getElementById('profile-pic-url').value = '';
+                    alert("Message sent successfully!");
+                    messageInput.value = ""; // Clear input
                 } else {
-                    responseMessage.textContent = 'Failed to send message.';
+                    alert("Error sending message. Check console.");
+                    console.error('Error:', response);
                 }
             })
-            .catch(error => {
-                responseMessage.textContent = 'Error: ' + error.message;
+            .catch((error) => {
+                console.error('Error:', error);
+                alert("Error sending message.");
+            })
+            .finally(() => {
+                // Re-enable button
+                sendButton.disabled = false;
+                sendButton.innerText = "Send!";
             });
         }
     </script>
