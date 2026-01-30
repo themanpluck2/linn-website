@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anonymous Q&A</title>
     <style>
-        /* Including CSS here so it's all in one file for you */
         body {
             margin: 0; padding: 0; font-family: 'Roboto', sans-serif;
             background: linear-gradient(135deg, #ff3366 0%, #ff6633 100%);
@@ -22,11 +21,16 @@
         .username-label { font-weight: 700; font-size: 14px; color: #333; }
         .prompt-text { font-size: 14px; color: #333; }
         
-        /* THE INPUT BOXES FOR USERNAME AND IMAGE */
         .input-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 8px; }
         .input-group input {
             width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px;
-            font-size: 14px; box-sizing: border-box; background: #fdfdfd;
+            font-size: 14px; box-sizing: border-box; background: #fdfdfd; transition: border 0.3s;
+        }
+
+        /* Error styling for the username box if empty */
+        .input-group input.error {
+            border: 2px solid #ff3366;
+            background: #fff0f0;
         }
 
         .message-area {
@@ -43,6 +47,7 @@
             background-color: black; color: white; border: none; border-radius: 30px;
             padding: 15px 0; width: 100%; font-size: 18px; font-weight: 700; cursor: pointer;
         }
+        #sendBtn:disabled { background-color: #444; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -53,13 +58,13 @@
                 <img src="https://via.placeholder.com/40/FF5733/FFFFFF?text=L" class="avatar">
                 <div class="header-text">
                     <span class="username-label">@Linnn</span>
-                    <span class="prompt-text">send me anonymous messages!</span>
+                    <span class="prompt-text">send me messages!</span>
                 </div>
             </div>
 
             <div class="input-group">
-                <input type="text" id="discordName" placeholder="Discord Username">
-                <input type="text" id="photoUrl" placeholder="Profile Photo Link (URL)">
+                <input type="text" id="discordName" placeholder="Discord Username * (Required)">
+                <input type="text" id="photoUrl" placeholder="Profile Photo Link (Optional)">
             </div>
 
             <div class="message-area">
@@ -67,7 +72,7 @@
             </div>
         </div>
 
-        <div class="footer-text">🔒 anonymous q&a</div>
+        <div class="footer-text">🔒 identity required q&a</div>
 
         <button id="sendBtn">Send!</button>
     </div>
@@ -76,12 +81,26 @@
         const WEBHOOK = "https://discord.com/api/webhooks/1466751890623565917/v-W-d0-Fqr2cWuYC6KmwgEy_yddydcWXkU_n0q05Pv_m1rtUBAP3KR2H55L3DO3MN7jh";
 
         document.getElementById('sendBtn').onclick = function() {
-            const name = document.getElementById('discordName').value || "Anonymous";
-            const pic = document.getElementById('photoUrl').value || null;
-            const message = document.getElementById('msg').value;
+            const nameField = document.getElementById('discordName');
+            const pic = document.getElementById('photoUrl').value.trim() || null;
+            const message = document.getElementById('msg').value.trim();
+            const name = nameField.value.trim();
 
-            if(!message) return alert("Type a message!");
+            // 1. Check if username is empty
+            if (!name) {
+                nameField.classList.add('error');
+                nameField.focus();
+                return alert("Error: You must enter a Discord Username to send a message!");
+            } else {
+                nameField.classList.remove('error');
+            }
 
+            // 2. Check if message is empty
+            if (!message) {
+                return alert("Please type a message before sending.");
+            }
+
+            // Start sending process
             this.innerText = "Sending...";
             this.disabled = true;
 
@@ -91,17 +110,33 @@
                 body: JSON.stringify({
                     username: name,
                     avatar_url: pic,
-                    content: `**New Message:** ${message}`
+                    embeds: [{
+                        title: "📩 New Message Received",
+                        description: message,
+                        color: 16724889,
+                        footer: { text: `Sent by: ${name}` },
+                        timestamp: new Date().toISOString()
+                    }]
                 })
-            }).then(() => {
-                alert("Sent!");
-                document.getElementById('msg').value = "";
+            }).then((res) => {
+                if (res.ok) {
+                    alert("Success! Your message and username have been sent.");
+                    document.getElementById('msg').value = "";
+                    // Optional: keep the username there so they don't have to re-type it
+                } else {
+                    alert("Error: Discord rejected the message. Check if your image link is valid.");
+                }
             }).catch(() => {
-                alert("Error!");
+                alert("Connection Error! Please check your internet.");
             }).finally(() => {
                 this.innerText = "Send!";
                 this.disabled = false;
             });
+        };
+
+        // Remove error styling as soon as the user starts typing
+        document.getElementById('discordName').oninput = function() {
+            this.classList.remove('error');
         };
     </script>
 </body>
