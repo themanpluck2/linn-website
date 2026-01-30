@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ask Me Anything</title>
+    <title>Anonymous Q&A</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -12,21 +12,21 @@
     <div class="main-container">
         <div class="qa-card">
             <div class="card-header">
-                <img src="https://via.placeholder.com/40/FF5733/FFFFFF?text=A" alt="Avatar" class="avatar">
+                <img src="https://via.placeholder.com/40/FF5733/FFFFFF?text=L" alt="Avatar" class="avatar">
                 <div class="header-text">
-                    <span class="username">@AskMe</span>
+                    <span class="username">@Linnn</span>
                     <span class="prompt-text">send me anonymous messages!</span>
                 </div>
             </div>
 
-            <div class="identity-inputs">
-                <input type="text" id="usernameInput" placeholder="Your Username (optional)" maxlength="32">
-                <input type="text" id="avatarInput" placeholder="Profile Picture URL (optional)">
+            <div class="extra-inputs">
+                <input type="text" id="usernameInput" placeholder="Enter your Discord username...">
+                <input type="text" id="avatarInput" placeholder="Paste Profile Pic URL (optional)...">
             </div>
 
             <div class="input-container">
-                <textarea id="messageInput" placeholder="use this example"></textarea>
-                <div class="dice-icon">🎲</div>
+                <textarea id="messageInput" placeholder="Type your question here..."></textarea>
+                <div class="dice-icon" onclick="randomPrompt()">🎲</div>
             </div>
         </div>
 
@@ -38,7 +38,6 @@
     </div>
 
     <script>
-        // YOUR WEBHOOK URL
         const WEBHOOK_URL = "https://discord.com/api/webhooks/1466751890623565917/v-W-d0-Fqr2cWuYC6KmwgEy_yddydcWXkU_n0q05Pv_m1rtUBAP3KR2H55L3DO3MN7jh"; 
 
         const sendButton = document.getElementById('sendButton');
@@ -46,62 +45,58 @@
         const usernameInput = document.getElementById('usernameInput');
         const avatarInput = document.getElementById('avatarInput');
 
+        // Fun feature: Random prompts when clicking the dice
+        function randomPrompt() {
+            const prompts = ["What's your favorite hobby?", "Tell me a secret!", "If you were a cat, what would you do?", "Do you like coding?"];
+            messageInput.value = prompts[Math.floor(Math.random() * prompts.length)];
+        }
+
         sendButton.addEventListener('click', sendMessage);
 
-        function sendMessage() {
+        async function sendMessage() {
             const message = messageInput.value.trim();
-            // Default to "Anonymous" if no name provided
-            const username = usernameInput.value.trim() || "Anonymous"; 
-            // Use the provided URL, or undefined (Discord will use default webhook avatar)
-            const avatarUrl = avatarInput.value.trim() || undefined;
+            const chosenUsername = usernameInput.value.trim() || "Anonymous User";
+            let chosenAvatar = avatarInput.value.trim() || null;
 
             if (message === "") {
-                alert("Please enter a message first.");
+                alert("Please type a message first!");
                 return;
             }
 
             sendButton.disabled = true;
             sendButton.innerText = "Sending...";
 
-            // Construct the Discord Payload
             const payload = {
-                username: username, 
-                avatar_url: avatarUrl,
+                username: chosenUsername,
+                avatar_url: chosenAvatar,
                 embeds: [{
-                    title: "New Message Received!",
+                    title: "📬 New Anonymous Message",
                     description: message,
-                    color: 16724889, // Pinkish color
-                    footer: {
-                        text: "Sent via Q&A Website"
-                    },
+                    color: 16724889,
                     timestamp: new Date().toISOString()
                 }]
             };
 
-            fetch(WEBHOOK_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            })
-            .then(response => {
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
                 if (response.ok) {
-                    alert("Message sent!");
+                    alert("Sent to Discord!");
                     messageInput.value = "";
                 } else {
-                    alert("Error sending. If you used a Profile Pic URL, make sure it is valid.");
-                    console.error(response);
+                    const err = await response.text();
+                    alert("Discord Error: " + err);
                 }
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                alert("Error sending message.");
-            })
-            .finally(() => {
+            } catch (error) {
+                alert("Network Error: Could not connect to Discord.");
+            } finally {
                 sendButton.disabled = false;
                 sendButton.innerText = "Send!";
-            });
+            }
         }
     </script>
 </body>
